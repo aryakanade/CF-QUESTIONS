@@ -1,0 +1,80 @@
+import bisect
+
+
+def upper_bound(arr, value):
+    # return smallest value which is greater than given value in c array
+    index = bisect.bisect_right(arr, value)
+    return index
+
+
+def lower_bound(arr, value):
+    # return largest value which is smallest than given value in c array
+    index = bisect.bisect_right(arr, value) - 1
+    return index
+
+
+def max_of_three(a, b, c):
+    return max(a, max(b, c))
+
+
+def main():
+    t = int(input())
+    for _ in range(t):
+        n, m, d = map(int, input().split())
+        max_diff = 0
+        second_max_diff = 0
+        x, y = 0, 0
+        diff_count = {}
+        a = list(map(int, input().split()))
+        b = list(map(int, input().split()))
+        c = [-1e18] + list(map(int, input().split())) + [1e18]
+
+        # max-diff
+        for i in range(1, n):
+            diff = a[i] - a[i - 1]
+            diff_count[diff] = diff_count.get(diff, 0) + 1
+            if diff > max_diff:
+                second_max_diff = max_diff
+                max_diff = diff
+                x, y = a[i - 1], a[i]
+            else:
+                second_max_diff = max(second_max_diff, diff)
+
+        c.sort()
+        b.sort()
+
+        if diff_count[max_diff] >= 2:
+            print(max_diff)
+        else:
+            if max_diff == 1:
+                print(max_diff)
+
+            else:
+                min_possible_diff = max_diff
+                mid_point = (x + y) // 2
+
+                # all sums greater than or equal to mid point
+                for value in b:
+                    search_val = mid_point - value
+                    idx = upper_bound(c, search_val)
+                    c_value = c[idx]
+                    pair_sum = value + c_value
+                    if x <= pair_sum <= y:
+                        possible_diff = max_of_three(pair_sum - x, y - pair_sum, second_max_diff)
+                        min_possible_diff = min(min_possible_diff, possible_diff)
+
+                # all sum less than equal to mid point
+                for value in b:
+                    search_val = mid_point - value
+                    idx = lower_bound(c, search_val)
+                    c_value = c[idx]
+                    pair_sum = value + c_value
+                    if x <= pair_sum <= y:
+                        possible_diff = max_of_three(pair_sum - x, y - pair_sum, second_max_diff)
+                        min_possible_diff = min(min_possible_diff, possible_diff)
+
+                print(min_possible_diff)
+
+
+if __name__ == "__main__":
+    main()
